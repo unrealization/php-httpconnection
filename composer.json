@@ -1,0 +1,17 @@
+{
+	"autoload" : {
+		"psr-4" : {
+			"unrealization\\PHPClassCollection\\" : "src"
+		},
+		"psr-0" : {
+			"unrealization\\PHPClassCollection\\" : "src"
+		}
+	},
+	"name" : "unrealization/php-httpconnection",
+	"type" : "library",
+	"license" : "LGPL-2.1",
+	"require" : {
+		"php" : ">=7.0",
+		"unrealization/php-tcpconnection" : "~1.4"
+	}
+}
