@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.0.0
+ * @version 2.0.1
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -73,7 +73,7 @@ class HTTPConnection extends TCPConnection
 	 * Set the user-agent
 	 * @param string $userAgent
 	 */
-	public function setUserAgent(string $userAgent = 'PHP/reptiler/HTTPConnection')
+	public function setUserAgent(string $userAgent = 'PHP/unrealization/HTTPConnection')
 	{
 		$this->userAgent = $userAgent;
 	}
