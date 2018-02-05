@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.0.2
+ * @version 2.1.0
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -43,6 +43,11 @@ class HTTPConnection extends TCPConnection
 	 * @var string
 	 */
 	private $userAgent = 'PHP/unrealization/HTTPConnection';
+	/**
+	 * Whether or not to automatically unchunk a chunked response.
+	 * @var bool
+	 */
+	private $autoUnchunk = true;
 
 	/**
 	 * Constructor
@@ -76,6 +81,15 @@ class HTTPConnection extends TCPConnection
 	public function setUserAgent(string $userAgent = 'PHP/unrealization/HTTPConnection')
 	{
 		$this->userAgent = $userAgent;
+	}
+
+	/**
+	 * Enable or disable automatic unchunking.
+	 * @param bool $autoUnchunk
+	 */
+	public function enableAutoUnchunk(bool $autoUnchunk = true)
+	{
+		$this->autoUnchunk = $autoUnchunk;
 	}
 
 	/**
@@ -165,6 +179,22 @@ class HTTPConnection extends TCPConnection
 		if (preg_match('@Transfer-Encoding: (.+)'.$lineBreak.'@', $data['header']['raw'], $matches))
 		{
 			$data['header']['content']['encoding'] = $matches[1];
+
+			if (($data['header']['content']['encoding'] == 'chunked') && ($this->autoUnchunk == true))
+			{
+				$oldBody = $data['body'];
+				$newBody = '';
+
+				while ((!empty($oldBody)) && (preg_match('@^([\d]+)'.$lineBreak.'@', $oldBody, $matches) != false))
+				{
+					$chunkLength = hexdec($matches[1]);
+					$oldBody = preg_replace('@^[\d]+'.$lineBreak.'@', '', $oldBody, 1);
+					$newBody .= substr($oldBody, 0, $chunkLength);
+					$oldBody = substr($oldBody, $chunkLength + strlen($lineBreak));
+				}
+
+				$data['body'] = $newBody;
+			}
 		}
 
 		if (preg_match('@Location: (.+)'.$lineBreak.'@', $data['header']['raw'], $matches))
