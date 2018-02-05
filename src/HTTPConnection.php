@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.1.0
+ * @version 2.1.1
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -185,10 +185,10 @@ class HTTPConnection extends TCPConnection
 				$oldBody = $data['body'];
 				$newBody = '';
 
-				while ((!empty($oldBody)) && (preg_match('@^([\d]+)'.$lineBreak.'@', $oldBody, $matches) != false))
+				while ((!empty($oldBody)) && (preg_match('@^([\dA-Fa-f]+)'.$lineBreak.'@', $oldBody, $matches) != false))
 				{
 					$chunkLength = hexdec($matches[1]);
-					$oldBody = preg_replace('@^[\d]+'.$lineBreak.'@', '', $oldBody, 1);
+					$oldBody = preg_replace('@^[\dA-Fa-f]+'.$lineBreak.'@', '', $oldBody, 1);
 					$newBody .= substr($oldBody, 0, $chunkLength);
 					$oldBody = substr($oldBody, $chunkLength + strlen($lineBreak));
 				}
@@ -282,7 +282,7 @@ class HTTPConnection extends TCPConnection
 			{
 				$paramString .= '='.$value['value'];
 			}
-			elseif (strlen($value)>0)
+			elseif (strlen($value) > 0)
 			{
 				$paramString .= '='.$value;
 			}
@@ -305,7 +305,7 @@ class HTTPConnection extends TCPConnection
 	 */
 	private function createOpenRequest(string $requestType = 'GET', string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): string
 	{
-		if (!preg_match('@^\/@',$uri))
+		if (!preg_match('@^\/@', $uri))
 		{
 			$uri = '/'.$uri;
 		}
@@ -344,7 +344,7 @@ class HTTPConnection extends TCPConnection
 
 		if (!empty($cookies))
 		{
-			$request .= 'Cookie: '.$this->createParamString($cookies, ';')."\r\n";
+			$request .= 'Cookie: '.$this->createParamString($cookies, '; ')."\r\n";
 		}
 
 		if (!empty($authuser))
