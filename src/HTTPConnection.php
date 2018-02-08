@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.1.1
+ * @version 2.2.0
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -138,16 +138,19 @@ class HTTPConnection extends TCPConnection
 			return $data;
 		}
 
-		if (preg_match('@((.+)(?|'.$lineBreak.'){2}).+@s', $data['raw'], $matches))
+		if (preg_match('@((.+)(?|'.$lineBreak.'){2})(.+)?@s', $data['raw'], $matches))
 		{
 			$data['header']['raw'] = $matches[2];
+
+			if (isset($matches[3]))
+			{
+				$data['body'] = $matches[3];
+			}
 		}
 		else
 		{
 			return $data;
 		}
-
-		$data['body'] = substr($data['raw'], strlen($matches[1]));
 
 		if (preg_match('@HTTP\/([\d]\.[\d]) ([\d]+) (.+)'.$lineBreak.'@', $data['header']['raw'], $matches))
 		{
@@ -492,6 +495,30 @@ class HTTPConnection extends TCPConnection
 		try
 		{
 			return $this->sendRequest($request, $content);
+		}
+		catch (\Exception $e)
+		{
+			throw $e;
+		}
+	}
+
+	/**
+	 * Send a DELETE request.
+	 * @param string $uri
+	 * @param array $getParameters
+	 * @param array $cookies
+	 * @param string $authUser
+	 * @param string $authPassword
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function delete(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
+	{
+		$request = $this->createOpenRequest('DELETE', $uri, $getParameters, $cookies, $authUser, $authPassword);
+
+		try
+		{
+			return $this->sendRequest($request);
 		}
 		catch (\Exception $e)
 		{
