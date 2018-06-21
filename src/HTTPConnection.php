@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.2.1
+ * @version 2.2.2
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -285,7 +285,7 @@ class HTTPConnection extends TCPConnection
 			{
 				$paramString .= '='.$value['value'];
 			}
-			elseif (strlen($value) > 0)
+			elseif (strlen((string)$value) > 0)
 			{
 				$paramString .= '='.$value;
 			}
