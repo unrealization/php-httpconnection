@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.2.2
+ * @version 2.3.0
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -382,69 +382,22 @@ class HTTPConnection extends TCPConnection
 	}
 
 	/**
-	 * Send a HEAD request.
+	 * Prepare and send the request.
+	 * @param string $type
 	 * @param string $uri
 	 * @param array $getParameters
 	 * @param array $cookies
 	 * @param string $authUser
 	 * @param string $authPassword
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function head(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
-	{
-		$request = $this->createOpenRequest('HEAD', $uri, $getParameters, $cookies, $authUser, $authPassword);
-
-		try
-		{
-			return $this->sendRequest($request);
-		}
-		catch (\Exception $e)
-		{
-			throw $e;
-		}
-	}
-
-	/**
-	 * Send a GET request.
-	 * @param string $uri
-	 * @param array $getParameters
-	 * @param array $cookies
-	 * @param string $authUser
-	 * @param string $authPassword
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function get(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
-	{
-		$request = $this->createOpenRequest('GET', $uri, $getParameters, $cookies, $authUser, $authPassword);
-
-		try
-		{
-			return $this->sendRequest($request);
-		}
-		catch (\Exception $e)
-		{
-			throw $e;
-		}
-	}
-
-	/**
-	 * Send a POST request.
-	 * @param string $uri
-	 * @param array $getParameters
 	 * @param array $postParameters
-	 * @param array $cookies
 	 * @param array $fileParameters
 	 * @param array $mimeTypes
-	 * @param string $authUser
-	 * @param string $authPassword
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function post(string $uri = '/', array $getParameters = array(), array $postParameters = array(), array $cookies = array(), array $fileParameters = array(), array $mimeTypes = array(), string $authUser = '', string $authPassword = ''): array
+	private function httpRequest(string $type, string $uri, array $getParameters, array $cookies, string $authUser, string $authPassword, array $postParameters = array(), array $fileParameters = array(), array $mimeTypes = array()): array
 	{
-		$request = $this->createOpenRequest('POST', $uri, $getParameters, $cookies, $authUser, $authPassword);
+		$request = $this->createOpenRequest($type, $uri, $getParameters, $cookies, $authUser, $authPassword);
 		$content = '';
 
 		if ((empty($fileParameters)) && (!empty($postParameters)))
@@ -498,7 +451,76 @@ class HTTPConnection extends TCPConnection
 		}
 		catch (\Exception $e)
 		{
-			throw $e;
+			throw new \Exception('Cannot send request', 0, $e);
+		}
+	}
+
+	/**
+	 * Send a HEAD request.
+	 * @param string $uri
+	 * @param array $getParameters
+	 * @param array $cookies
+	 * @param string $authUser
+	 * @param string $authPassword
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function head(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
+	{
+		try
+		{
+			return $this->httpRequest('HEAD', $uri, $getParameters, $cookies, $authUser, $authPassword);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception('Cannot send HEAD request', 0, $e);
+		}
+	}
+
+	/**
+	 * Send a GET request.
+	 * @param string $uri
+	 * @param array $getParameters
+	 * @param array $cookies
+	 * @param string $authUser
+	 * @param string $authPassword
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function get(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
+	{
+		try
+		{
+			return $this->httpRequest('GET', $uri, $getParameters, $cookies, $authUser, $authPassword);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception('Cannot send GET request', 0, $e);
+		}
+	}
+
+	/**
+	 * Send a POST request.
+	 * @param string $uri
+	 * @param array $getParameters
+	 * @param array $postParameters
+	 * @param array $cookies
+	 * @param array $fileParameters
+	 * @param array $mimeTypes
+	 * @param string $authUser
+	 * @param string $authPassword
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function post(string $uri = '/', array $getParameters = array(), array $postParameters = array(), array $cookies = array(), array $fileParameters = array(), array $mimeTypes = array(), string $authUser = '', string $authPassword = ''): array
+	{
+		try
+		{
+			return $this->httpRequest('POST', $uri, $getParameters, $cookies, $authUser, $authPassword, $postParameters, $fileParameters, $mimeTypes);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception('Cannot send POST request', 0, $e);
 		}
 	}
 
@@ -514,15 +536,38 @@ class HTTPConnection extends TCPConnection
 	 */
 	public function delete(string $uri = '/', array $getParameters = array(), array $cookies = array(), string $authUser = '', string $authPassword = ''): array
 	{
-		$request = $this->createOpenRequest('DELETE', $uri, $getParameters, $cookies, $authUser, $authPassword);
-
 		try
 		{
-			return $this->sendRequest($request);
+			return $this->httpRequest('DELETE', $uri, $getParameters, $cookies, $authUser, $authPassword);
 		}
 		catch (\Exception $e)
 		{
-			throw $e;
+			throw new \Exception('Cannot send DELETE request', 0, $e);
+		}
+	}
+
+	/**
+	 * Send a PUT request.
+	 * @param string $uri
+	 * @param array $getParameters
+	 * @param array $postParameters
+	 * @param array $cookies
+	 * @param array $fileParameters
+	 * @param array $mimeTypes
+	 * @param string $authUser
+	 * @param string $authPassword
+	 * @throws \Exception
+	 * @return array
+	 */
+	public function put(string $uri = '/', array $getParameters = array(), array $postParameters = array(), array $cookies = array(), array $fileParameters = array(), array $mimeTypes = array(), string $authUser = '', string $authPassword = ''): array
+	{
+		try
+		{
+			return $this->httpRequest('PUT', $uri, $getParameters, $cookies, $authUser, $authPassword, $postParameters, $fileParameters, $mimeTypes);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception('Cannot send PUT request', 0, $e);
 		}
 	}
 }
