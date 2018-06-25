@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.3.0
+ * @version 2.3.1
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -140,7 +140,7 @@ class HTTPConnection extends TCPConnection
 
 		if (preg_match('@^((.+)(?|'.$lineBreak.'){2})(.+)?$@sU', $data['raw'], $matches))
 		{
-			$data['header']['raw'] = $matches[2];
+			$data['header']['raw'] = $matches[2].$lineBreak;
 
 			if (isset($matches[3]))
 			{
@@ -175,7 +175,7 @@ class HTTPConnection extends TCPConnection
 
 			if (!empty($matches[2]))
 			{
-				$data[`header`]['content']['charset'] = $matches[2];
+				$data['header']['content']['charset'] = $matches[2];
 			}
 		}
 
