@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 3.0.0
+ * @version 3.0.1
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -77,19 +77,23 @@ class HTTPConnection extends TCPConnection
 	/**
 	 * Set the user-agent
 	 * @param string $userAgent
+	 * @return HTTPConnection
 	 */
-	public function setUserAgent(string $userAgent = 'PHP/unrealization/HTTPConnection')
+	public function setUserAgent(string $userAgent = 'PHP/unrealization/HTTPConnection'): HTTPConnection
 	{
 		$this->userAgent = $userAgent;
+		return $this;
 	}
 
 	/**
 	 * Enable or disable automatic unchunking.
 	 * @param bool $autoUnchunk
+	 * @return HTTPConnection
 	 */
-	public function enableAutoUnchunk(bool $autoUnchunk = true)
+	public function enableAutoUnchunk(bool $autoUnchunk = true): HTTPConnection
 	{
 		$this->autoUnchunk = $autoUnchunk;
+		return $this;
 	}
 
 	/**
