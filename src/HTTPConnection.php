@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.3.2
+ * @version 3.0.0
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -57,7 +57,7 @@ class HTTPConnection extends TCPConnection
 	 * @param string $proxyHost
 	 * @param int $proxyPort
 	 */
-	public function __construct(string $httpHost, int $httpPort = 80, bool $ssl = false, string $proxyHost = null, int $proxyPort = 3128)
+	public function __construct(string $httpHost, int $httpPort = 80, bool $ssl = false, ?string $proxyHost = null, int $proxyPort = 3128)
 	{
 		$this->httpHost = $httpHost;
 		$this->httpPort = $httpPort;

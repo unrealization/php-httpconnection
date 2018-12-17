@@ -11,7 +11,7 @@
 	"type" : "library",
 	"license" : "LGPL-2.1",
 	"require" : {
-		"php" : ">=7.0",
-		"unrealization/php-tcpconnection" : "~1.4"
+		"php" : ">=7.1",
+		"unrealization/php-tcpconnection" : "~2.0"
 	}
 }
