@@ -13,5 +13,8 @@
 	"require" : {
 		"php" : ">=7.1",
 		"unrealization/php-tcpconnection" : "~2.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^8.1"
 	}
 }
