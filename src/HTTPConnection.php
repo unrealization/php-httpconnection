@@ -12,9 +12,9 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 3.0.2
+ * @version 3.0.3
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
- * @todo Finish the rewrite decodeResponse()
+ * @todo Finish the rewrite of decodeResponse()
  */
 class HTTPConnection extends TCPConnection
 {
@@ -378,7 +378,7 @@ class HTTPConnection extends TCPConnection
 			throw new \Exception('Not connected');
 		}
 
-		$requestString = $request.'Connection: close'."\r\n\r\n".$content;
+		$requestString = $request.$content;
 		$this->write($requestString);
 		$response = $this->read();
 		$this->disconnect();
@@ -448,6 +448,8 @@ class HTTPConnection extends TCPConnection
 		{
 			$request .= 'Content-Length: '.strlen($content)."\r\n";
 		}
+
+		$request .= 'Connection: close'."\r\n\r\n";
 
 		try
 		{
