@@ -15,39 +15,86 @@ class HTTPConnectionTest extends TestCase
 		if (!empty($response))
 		{
 			$mockBuilder = $this->getMockBuilder(HTTPConnection::class);
-			$mock = $mockBuilder->setConstructorArgs($constructorArgs)->setMethods(array('connect', 'disconnect', 'write', 'read'))->getMock();
-			$mock->method('connect')->willReturn(true);
-			$mock->method('disconnect');
-			$mock->method('write');
-			$mock->method('read')->willReturn($response);
+			$connection = $mockBuilder->setConstructorArgs($constructorArgs)->setMethods(array('connect', 'disconnect', 'write', 'read'))->getMock();
+			$connection->method('connect')->willReturn(true);
+			$connection->method('disconnect');
+			$connection->method('write');
+			$connection->method('read')->willReturn($response);
 		}
 		else
 		{
 			$mockBuilder = $this->getMockBuilder(HTTPConnection::class);
-			$mock = $mockBuilder->setConstructorArgs($constructorArgs)->setMethods(array('connect'))->getMock();
-			$mock->method('connect')->willReturn(false);
+			$connection = $mockBuilder->setConstructorArgs($constructorArgs)->setMethods(array('connect'))->getMock();
+			$connection->method('connect')->willReturn(false);
 		}
 
-		return $mock;
+		return $connection;
 	}
 
 	private function getHeadResponse(): string
 	{
 		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Content-Length: 0'."\r\n";
-		//$response .= 'Content-Type: application/json'."\r\n";
-		$response .= 'Date: Sat, 04 May 2019 01:21:47 GMT'."\r\n"."\r\n";
-		//$response .= '{"id":1,"jsonrpc":"2.0","result":[]}';
+		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
+		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
+		//$response .= 'Content-Length: 16'."\r\n";
+		//$response .= 'Connection: close'."\r\n";
+		$response .= 'Connection: close'."\r\n\r\n";
+		//$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+		//$response .= '{"info" : "OK"}'."\n";
 		return $response;
 	}
 
 	private function getGetResponse(): string
 	{
 		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Content-Length: 36'."\r\n";
-		$response .= 'Content-Type: application/json'."\r\n";
-		$response .= 'Date: Sat, 04 May 2019 01:21:47 GMT'."\r\n"."\r\n";
-		$response .= '{"id":1,"jsonrpc":"2.0","result":[]}';
+		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
+		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
+		$response .= 'Content-Length: 16'."\r\n";
+		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
+		$response .= 'Connection: close'."\r\n";
+		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+		$response .= '{"info" : "OK"}'."\n";
+		return $response;
+	}
+
+	private function getPostResponse(): string
+	{
+		$response = 'HTTP/1.1 200 OK'."\r\n";
+		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
+		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
+		$response .= 'Set-Cookie: cookie1=abcd; path=/; max-age=864000'."\r\n";
+		$response .= 'Set-Cookie: cookie2=1234; path=/; max-age=864000'."\r\n";
+		$response .= 'Content-Length: 16'."\r\n";
+		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
+		$response .= 'Connection: close'."\r\n";
+		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+		$response .= '{"info" : "OK"}'."\n";
+		return $response;
+	}
+
+	private function getPutResponse(): string
+	{
+		$response = 'HTTP/1.1 200 OK'."\r\n";
+		$response .= 'Date: Fri, 10 May 2019 08:34:33 GMT'."\r\n";
+		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
+		$response .= 'Content-Length: 16'."\r\n";
+		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
+		$response .= 'Connection: close'."\r\n";
+		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+		$response .= '{"info" : "OK"}'."\n";
+		return $response;
+	}
+
+	public function getDeleteResponse(): string
+	{
+		$response = 'HTTP/1.1 200 OK'."\r\n";
+		$response .= 'Date: Fri, 10 May 2019 08:34:48 GMT'."\r\n";
+		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
+		$response .= 'Content-Length: 16'."\r\n";
+		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
+		$response .= 'Connection: close'."\r\n";
+		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+		$response .= '{"info" : "OK"}'."\n";
 		return $response;
 	}
 
@@ -91,16 +138,16 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testHead()
 	{
-		$mock = $this->getMockConnection(array('some.host', 80, false, 'some.proxy'), $this->getHeadResponse());
-		$response = $mock->head('/');
+		$connection = $this->getMockConnection(array('some.host', 80, false, 'some.proxy'), $this->getHeadResponse());
+		$response = $connection->head('/');
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
 
 	public function testHeadException()
 	{
-		$mock = $this->getMockConnection(array('some.host', 443, true), '');
+		$connection = $this->getMockConnection(array('some.host', 443, true), '');
 		$this->expectException(\Exception::class);
-		$mock->head('', array('someKey' => 'someValue'));
+		$connection->head('', array('someKey' => 'someValue'));
 	}
 
 	/**
@@ -108,16 +155,16 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testGet()
 	{
-		$mock = $this->getMockConnection(array('some.host'), $this->getGetResponse());
-		$response = $mock->get('/', array('someKey' => array('value' => 'someValue')));
+		$connection = $this->getMockConnection(array('some.host'), $this->getGetResponse());
+		$response = $connection->get('/', array('someKey' => array('value' => 'someValue')));
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
 
 	public function testGetException()
 	{
-		$mock = $this->getMockConnection(array('some.host', 443, true, 'some.proxy'), '');
+		$connection = $this->getMockConnection(array('some.host', 443, true, 'some.proxy'), '');
 		$this->expectException(\Exception::class);
-		$mock->get('/', array(), array('someCookie' => 'someValue'));
+		$connection->get('/', array(), array('someCookie' => 'someValue'));
 	}
 
 	/**
@@ -125,17 +172,16 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testPost()
 	{
-		// TODO Auto-generated HTTPConnectionTest->testPost()
-		$this->markTestIncomplete("post test not implemented");
-
-		$this->hTTPConnection->post(/* parameters */);
+		$connection = $this->getMockConnection(array('some.host'), $this->getPostResponse());
+		$response = $connection->post('/', array('someGetKey' => 'someValue'), array('somePostKey', 'someValue'));
+		$this->assertEquals(200, $response['header']['http']['code']);
 	}
 
 	public function testPostException()
 	{
-		$mock = $this->getMockConnection(array('some.host'), '');
+		$connection = $this->getMockConnection(array('some.host'), '');
 		$this->expectException(\Exception::class);
-		$mock->post('/');
+		$connection->post('/');
 	}
 
 	/**
@@ -143,16 +189,16 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testDelete()
 	{
-		$mock = $this->getMockConnection(array('some.host'), $this->getHeadResponse());
-		$response = $mock->delete('/', array(), array(), 'someUser', 'somePassword');
+		$connection = $this->getMockConnection(array('some.host'), $this->getDeleteResponse());
+		$response = $connection->delete('/', array(), array(), 'someUser', 'somePassword');
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
 
 	public function testDeleteException()
 	{
-		$mock = $this->getMockConnection(array('some.host'), '');
+		$connection = $this->getMockConnection(array('some.host'), '');
 		$this->expectException(\Exception::class);
-		$mock->delete('/');
+		$connection->delete('/');
 	}
 
 	/**
@@ -160,17 +206,16 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testPut()
 	{
-		// TODO Auto-generated HTTPConnectionTest->testPut()
-		$this->markTestIncomplete("put test not implemented");
-
-		$this->hTTPConnection->put(/* parameters */);
+		$connection = $this->getMockConnection(array('some.host'), $this->getPutResponse());
+		$response = $connection->put('/');
+		$this->assertEquals(200, $response['header']['http']['code']);
 	}
 
 	public function testPutException()
 	{
-		$mock = $this->getMockConnection(array('some.host'), '');
+		$connection = $this->getMockConnection(array('some.host'), '');
 		$this->expectException(\Exception::class);
-		$mock->put('/');
+		$connection->put('/');
 	}
 }
 
