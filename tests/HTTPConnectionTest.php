@@ -31,70 +31,32 @@ class HTTPConnectionTest extends TestCase
 		return $connection;
 	}
 
-	private function getHeadResponse(): string
+	private function getResponse(bool $headerOnly = false): string
 	{
 		$response = 'HTTP/1.1 200 OK'."\r\n";
 		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
 		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
-		//$response .= 'Content-Length: 16'."\r\n";
-		//$response .= 'Connection: close'."\r\n";
-		$response .= 'Connection: close'."\r\n\r\n";
-		//$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
-		//$response .= '{"info" : "OK"}'."\n";
-		return $response;
-	}
 
-	private function getGetResponse(): string
-	{
-		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
-		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
-		$response .= 'Content-Length: 16'."\r\n";
+		if ($headerOnly === false)
+		{
+			$response .= 'Set-Cookie: cookie1=abcd; path=/; max-age=864000'."\r\n";
+			$response .= 'Set-Cookie: cookie2=1234; path=/; max-age=864000'."\r\n";
+			$response .= 'Content-Length: 16'."\r\n";
+		}
+
 		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
 		$response .= 'Connection: close'."\r\n";
-		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
-		$response .= '{"info" : "OK"}'."\n";
-		return $response;
-	}
 
-	private function getPostResponse(): string
-	{
-		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Date: Fri, 10 May 2019 08:34:52 GMT'."\r\n";
-		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
-		$response .= 'Set-Cookie: cookie1=abcd; path=/; max-age=864000'."\r\n";
-		$response .= 'Set-Cookie: cookie2=1234; path=/; max-age=864000'."\r\n";
-		$response .= 'Content-Length: 16'."\r\n";
-		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
-		$response .= 'Connection: close'."\r\n";
-		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
-		$response .= '{"info" : "OK"}'."\n";
-		return $response;
-	}
+		if ($headerOnly === false)
+		{
+			$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
+			$response .= '{"info" : "OK"}'."\n";
+		}
+		else
+		{
+			$response .= "\r\n";
+		}
 
-	private function getPutResponse(): string
-	{
-		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Date: Fri, 10 May 2019 08:34:33 GMT'."\r\n";
-		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
-		$response .= 'Content-Length: 16'."\r\n";
-		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
-		$response .= 'Connection: close'."\r\n";
-		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
-		$response .= '{"info" : "OK"}'."\n";
-		return $response;
-	}
-
-	public function getDeleteResponse(): string
-	{
-		$response = 'HTTP/1.1 200 OK'."\r\n";
-		$response .= 'Date: Fri, 10 May 2019 08:34:48 GMT'."\r\n";
-		$response .= 'Server: Apache/2.4.38 (FreeBSD) OpenSSL/1.0.2o-freebsd PHP/7.2.15'."\r\n";
-		$response .= 'Content-Length: 16'."\r\n";
-		//$response .= 'Strict-Transport-Security: max-age=17280000'."\r\n";
-		$response .= 'Connection: close'."\r\n";
-		$response .= 'Content-Type: application/json; charset=utf-8'."\r\n\r\n";
-		$response .= '{"info" : "OK"}'."\n";
 		return $response;
 	}
 
@@ -138,7 +100,7 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testHead()
 	{
-		$connection = $this->getMockConnection(array('some.host', 80, false, 'some.proxy'), $this->getHeadResponse());
+		$connection = $this->getMockConnection(array('some.host', 80, false, 'some.proxy'), $this->getResponse(true));
 		$response = $connection->head('/');
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
@@ -155,7 +117,7 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testGet()
 	{
-		$connection = $this->getMockConnection(array('some.host'), $this->getGetResponse());
+		$connection = $this->getMockConnection(array('some.host'), $this->getResponse());
 		$response = $connection->get('/', array('someKey' => array('value' => 'someValue')));
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
@@ -172,7 +134,7 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testPost()
 	{
-		$connection = $this->getMockConnection(array('some.host'), $this->getPostResponse());
+		$connection = $this->getMockConnection(array('some.host'), $this->getResponse());
 		$response = $connection->post('/', array('someGetKey' => 'someValue'), array('somePostKey', 'someValue'));
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
@@ -189,7 +151,7 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testDelete()
 	{
-		$connection = $this->getMockConnection(array('some.host'), $this->getDeleteResponse());
+		$connection = $this->getMockConnection(array('some.host'), $this->getResponse());
 		$response = $connection->delete('/', array(), array(), 'someUser', 'somePassword');
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
@@ -206,7 +168,7 @@ class HTTPConnectionTest extends TestCase
 	 */
 	public function testPut()
 	{
-		$connection = $this->getMockConnection(array('some.host'), $this->getPutResponse());
+		$connection = $this->getMockConnection(array('some.host'), $this->getResponse());
 		$response = $connection->put('/');
 		$this->assertEquals(200, $response['header']['http']['code']);
 	}
