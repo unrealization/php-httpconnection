@@ -12,7 +12,7 @@ namespace unrealization\PHPClassCollection;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 2.3.2
+ * @version 2.3.3
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite decodeResponse()
  */
@@ -352,7 +352,7 @@ class HTTPConnection extends TCPConnection
 
 		if (!empty($authUser))
 		{
-			$request .= 'Authorization: Basic '.base64_encode($authUser, ':'.$authPassword)."\r\n";
+			$request .= 'Authorization: Basic '.base64_encode($authUser.':'.$authPassword)."\r\n";
 		}
 
 		return $request;
