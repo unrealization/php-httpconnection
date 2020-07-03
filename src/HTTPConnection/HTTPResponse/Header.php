@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace unrealization\PHPClassCollection\HTTPConnection\HTTPResponse;
 
+use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\ContentInfo;
+use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\Cookie;
+use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\HTTPStatus;
+use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\LocationInfo;
+
 class Header
 {
 	private $rawHeader		= '';
@@ -12,7 +17,7 @@ class Header
 	private $locationInfo	= null;
 	private $cookies		= array();
 
-	public function __construct($header)
+	public function __construct(string $header)
 	{
 		$this->rawHeader = $header;
 		$matches = array();
@@ -28,7 +33,7 @@ class Header
 
 		if (preg_match('@HTTP\/([\d]\.[\d]) ([\d]+) (.+)'.$lineBreak.'@', $header, $matches))
 		{
-			$this->httpStatus = new \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\HTTPStatus($matches[1], (int)$matches[2], $matches[3]);
+			$this->httpStatus = new HTTPStatus($matches[1], (int)$matches[2], $matches[3]);
 		}
 
 		if (preg_match('@Server: (.+)'.$lineBreak.'@', $header, $matches))
@@ -73,7 +78,7 @@ class Header
 			$transferEncoding = '';
 		}
 
-		$this->contentInfo = new \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\ContentInfo($contentLength, $contentType, $contentCharset, $transferEncoding);
+		$this->contentInfo = new ContentInfo($contentLength, $contentType, $contentCharset, $transferEncoding);
 
 		if (preg_match('@Location: (.+)'.$lineBreak.'@', $header, $matches))
 		{
@@ -108,7 +113,7 @@ class Header
 					$parameters = '';
 				}
 
-				$this->locationInfo = new \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\LocationInfo($matches[1], $matches[3], $port, $ssl, $matches[5], $parameters);
+				$this->locationInfo = new LocationInfo($matches[1], $matches[3], $port, $ssl, $matches[5], $parameters);
 			}
 		}
 
@@ -148,7 +153,7 @@ class Header
 						$parameters[] = $parameter;
 					}
 
-					$cookie = new \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\Cookie($name, $value, $parameters);
+					$cookie = new Cookie($name, $value, $parameters);
 					$this->cookies[] = $cookie;
 				}
 			}
@@ -160,7 +165,7 @@ class Header
 		return $this->rawHeader;
 	}
 
-	public function getHttpStatus(): \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\HTTPStatus
+	public function getHttpStatus(): HTTPStatus
 	{
 		return $this->httpStatus;
 	}
@@ -170,7 +175,7 @@ class Header
 		return $this->server;
 	}
 
-	public function getContentInfo(): \unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\ContentInfo
+	public function getContentInfo(): ContentInfo
 	{
 		return $this->contentInfo;
 	}

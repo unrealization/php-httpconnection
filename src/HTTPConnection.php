@@ -16,7 +16,7 @@ use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 3.99.1
+ * @version 3.99.2
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite of decodeResponse()
  */
