@@ -16,7 +16,7 @@ use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 3.99.5
+ * @version 3.99.6
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite of decodeResponse()
  */
@@ -168,7 +168,7 @@ class HTTPConnection extends TCPConnection
 	{
 		$uri = $request->getUri();
 
-		if (!preg_match('@^\/@', $uri))
+		if (!mb_ereg_match('^\/', $uri))
 		{
 			$uri = '/'.$uri;
 		}
@@ -234,7 +234,7 @@ class HTTPConnection extends TCPConnection
 
 		if (!empty($fileParameters))
 		{
-			$boundary = '-------------------------'.substr(md5(uniqid()), 0, 15);
+			$boundary = '-------------------------'.mb_substr(md5(uniqid()), 0, 15);
 			$requestString .= 'Content-Type: multipart/form-data; boundary='.$boundary."\r\n";
 
 			foreach ($fileParameters as $key => $value)
@@ -274,7 +274,7 @@ class HTTPConnection extends TCPConnection
 
 		if (!empty($content))
 		{
-			$requestString .= 'Content-Length: '.strlen($content)."\r\n";
+			$requestString .= 'Content-Length: '.mb_strlen($content)."\r\n";
 		}
 
 		$requestString .= 'Connection: close'."\r\n\r\n";

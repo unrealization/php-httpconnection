@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace unrealization\PHPClassCollection\HTTPConnection;
 
 use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header;
+use unrealization\PHPClassCollection\MbRegEx;
 
 class HTTPResponse
 {
@@ -11,28 +12,10 @@ class HTTPResponse
 	private $header			= null;
 	private $body			= '';
 
-	public function __construct(string $response, bool $autoUnchunk = true)
+	public static function detectLineBreak(string $content): string
 	{
-		$this->rawResponse = $response;
-		$encoding = mb_detect_encoding($response, mb_list_encodings());
-		mb_regex_encoding($encoding);
-		mb_regex_set_options('d');
-
-		$longBreak = null;
-		mb_ereg_search_init($response);
-
-		if (mb_ereg_search('\r\n'))
-		{
-			$longBreak = mb_ereg_search_getpos();
-		}
-
-		$shortBreak = null;
-		mb_ereg_search_init($response);
-
-		if (mb_ereg_search("\n"))
-		{
-			$shortBreak = mb_ereg_search_getpos();
-		}
+		$longBreak = MbRegEx::search('\r\n', $content);
+		$shortBreak = MbRegEx::search('\n', $content);
 
 		if ((!is_null($longBreak)) && (!is_null($shortBreak)))
 		{
@@ -58,16 +41,15 @@ class HTTPResponse
 			throw new \Exception('Unable to find line break.');
 		}
 
-		$matches = array();
-		mb_regex_set_options('md');
-		/*mb_ereg_search_init($response);
+		return $lineBreak;
+	}
 
-		if (mb_ereg_search('('.$lineBreak.'){2}'))
-		{
-			error_log((string)mb_ereg_search_getpos());
-		}*/
+	public function __construct(string $response, bool $autoUnchunk = true)
+	{
+		$this->rawResponse = $response;
+		$lineBreak = self::detectLineBreak($response);
 
-		if (mb_ereg('^((.+)('.$lineBreak.'){2})(.+)?$', $response, $matches))
+		if (!is_null($matches = MbRegEx::match('^((.+)('.$lineBreak.'){2})(.+)?$', $response, 'm')))
 		{
 			$header = $matches[2].$lineBreak;
 			$this->header = new Header($header);
@@ -78,13 +60,12 @@ class HTTPResponse
 
 				if (($this->header->getContentInfo()->getTransferEncoding() === 'chunked') && ($autoUnchunk === true))
 				{
+					$encoding = mb_detect_encoding($body, mb_list_encodings());
+					mb_regex_encoding($encoding);
 					$chunkedBody = $body;
 					$body = '';
 
-					/**
-					 * TODO: Check !==
-					 */
-					while ((!empty($chunkedBody)) && (mb_ereg('^([\dA-Fa-f]+)'.$lineBreak, $chunkedBody, $matches)))
+					while ((!empty($chunkedBody)) && (!is_null($matches = MbRegEx::match('^([\dA-Fa-f]+)'.$lineBreak, $chunkedBody))))
 					{
 						$chunkLength = hexdec($matches[1]);
 						$chunkedBody = mb_ereg_replace('^'.$matches[1].$lineBreak, '', $chunkedBody);

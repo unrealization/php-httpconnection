@@ -7,6 +7,8 @@ use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\ContentI
 use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\Cookie;
 use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\HTTPStatus;
 use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse\Header\LocationInfo;
+use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse;
+use unrealization\PHPClassCollection\MbRegEx;
 
 class Header
 {
@@ -20,28 +22,19 @@ class Header
 	public function __construct(string $header)
 	{
 		$this->rawHeader = $header;
-		$matches = array();
+		$lineBreak = HTTPResponse::detectLineBreak($header);
 
-		if (preg_match('@^.*((?|\r)?\n)@Um', $header, $matches))
-		{
-			$lineBreak = $matches[1];
-		}
-		else
-		{
-			throw new \Exception('Unable to find line break.');
-		}
-
-		if (preg_match('@HTTP\/([\d]\.[\d]) ([\d]+) (.+)'.$lineBreak.'@', $header, $matches))
+		if (!is_null($matches = MbRegEx::match('HTTP\/([\d]\.[\d]) ([\d]+) (.+)'.$lineBreak, $header)))
 		{
 			$this->httpStatus = new HTTPStatus($matches[1], (int)$matches[2], $matches[3]);
 		}
 
-		if (preg_match('@Server: (.+)'.$lineBreak.'@', $header, $matches))
+		if (!is_null($matches = MbRegEx::match('Server: (.+)'.$lineBreak, $header)))
 		{
 			$this->server = $matches[1];
 		}
 
-		if (preg_match('@Content-Length: ([\d]+)'.$lineBreak.'@', $header, $matches))
+		if (!is_null($matches = MbRegEx::match('Content-Length: ([\d]+)'.$lineBreak, $header)))
 		{
 			$contentLength = (int)$matches[1];
 		}
@@ -50,13 +43,13 @@ class Header
 			$contentLength = 0;
 		}
 
-		if (preg_match('@Content-Type: ([\w]+\/[\w-]+)(?|;(?| )?charset=(.+))?'.$lineBreak.'@', $header, $matches))
+		if (!is_null($matches = MbRegEx::match('Content-Type: ([\w]+\/[\w-]+)(;( )?charset=(.+))?'.$lineBreak, $header)))
 		{
 			$contentType = $matches[1];
 
-			if (!empty($matches[2]))
+			if ($matches[4] !== false)
 			{
-				$contentCharset = $matches[2];
+				$contentCharset = $matches[4];
 			}
 			else
 			{
@@ -69,7 +62,7 @@ class Header
 			$contentCharset = '';
 		}
 
-		if (preg_match('@Transfer-Encoding: (.+)'.$lineBreak.'@', $header, $matches))
+		if (!is_null($matches = MbRegEx::search('Transfer-Encoding: (.+)'.$lineBreak, $header)))
 		{
 			$transferEncoding = $matches[1];
 		}
