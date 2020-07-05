@@ -13,10 +13,13 @@ class HTTPResponse
 
 	public function __construct(string $response, bool $autoUnchunk = true)
 	{
+		$encoding = mb_detect_encoding($response, mb_list_encodings());
+		$response = mb_convert_encoding($response, 'UTF-8', $encoding);
 		$this->rawResponse = $response;
 		$matches = array();
+		mb_regex_set_options('md');
 
-		if (preg_match('@^.*((?|\r)?\n)@Um', $response, $matches))
+		if (mb_ereg('^.*((\r)?\n)', $response, $matches))
 		{
 			$lineBreak = $matches[1];
 		}
@@ -25,22 +28,14 @@ class HTTPResponse
 			throw new \Exception('Unable to find line break.');
 		}
 
-		if (preg_match('@^((.+)(?|'.$lineBreak.'){2})(.+)?$@sU', $response, $matches))
+		if (mb_ereg('^((.+)('.$lineBreak.'){2})(.+)?$', $response, $matches))
 		{
 			$header = $matches[2].$lineBreak;
+			$this->header = new Header($header);
 
-			try
+			if (!empty($matches[4]))
 			{
-				$this->header = new Header($header);
-			}
-			catch (\Exception $e)
-			{
-				throw new \Exception('Unable to decode the header.', 0, $e);
-			}
-
-			if (!empty($matches[3]))
-			{
-				$body = $matches[3];
+				$body = $matches[4];
 
 				if (($this->header->getContentInfo()->getTransferEncoding() === 'chunked') && ($autoUnchunk === true))
 				{
@@ -50,12 +45,12 @@ class HTTPResponse
 					/**
 					 * TODO: Check !==
 					 */
-					while ((!empty($chunkedBody)) && (preg_match('@^([\dA-Fa-f]+)'.$lineBreak.'@', $chunkedBody, $matches) != false))
+					while ((!empty($chunkedBody)) && (mb_ereg('^([\dA-Fa-f]+)'.$lineBreak, $chunkedBody, $matches)))
 					{
 						$chunkLength = hexdec($matches[1]);
-						$chunkedBody = preg_replace('@^'.$matches[1].$lineBreak.'@', '', $chunkedBody, 1);
-						$body .= substr($chunkedBody, 0, $chunkLength);
-						$chunkedBody = substr($chunkedBody, $chunkLength + strlen($lineBreak));
+						$chunkedBody = mb_ereg_replace('^'.$matches[1].$lineBreak, '', $chunkedBody);
+						$body .= mb_substr($chunkedBody, 0, $chunkLength);
+						$chunkedBody = mb_substr($chunkedBody, $chunkLength + mb_strlen($lineBreak));
 					}
 				}
 
