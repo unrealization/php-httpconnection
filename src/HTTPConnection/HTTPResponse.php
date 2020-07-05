@@ -13,20 +13,59 @@ class HTTPResponse
 
 	public function __construct(string $response, bool $autoUnchunk = true)
 	{
-		$encoding = mb_detect_encoding($response, mb_list_encodings());
-		$response = mb_convert_encoding($response, 'UTF-8', $encoding);
 		$this->rawResponse = $response;
-		$matches = array();
-		mb_regex_set_options('md');
+		$encoding = mb_detect_encoding($response, mb_list_encodings());
+		mb_regex_encoding($encoding);
+		mb_regex_set_options('d');
 
-		if (mb_ereg('^.*((\r)?\n)', $response, $matches))
+		$longBreak = null;
+		mb_ereg_search_init($response);
+
+		if (mb_ereg_search('\r\n'))
 		{
-			$lineBreak = $matches[1];
+			$longBreak = mb_ereg_search_getpos();
+		}
+
+		$shortBreak = null;
+		mb_ereg_search_init($response);
+
+		if (mb_ereg_search("\n"))
+		{
+			$shortBreak = mb_ereg_search_getpos();
+		}
+
+		if ((!is_null($longBreak)) && (!is_null($shortBreak)))
+		{
+			if ($longBreak <= $shortBreak)
+			{
+				$lineBreak = "\r\n";
+			}
+			else
+			{
+				$lineBreak = "\n";
+			}
+		}
+		elseif (!is_null($longBreak))
+		{
+			$lineBreak = "\r\n";
+		}
+		elseif (!is_null($shortBreak))
+		{
+			$lineBreak = "\n";
 		}
 		else
 		{
 			throw new \Exception('Unable to find line break.');
 		}
+
+		$matches = array();
+		mb_regex_set_options('md');
+		/*mb_ereg_search_init($response);
+
+		if (mb_ereg_search('('.$lineBreak.'){2}'))
+		{
+			error_log((string)mb_ereg_search_getpos());
+		}*/
 
 		if (mb_ereg('^((.+)('.$lineBreak.'){2})(.+)?$', $response, $matches))
 		{
