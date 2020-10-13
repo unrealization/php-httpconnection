@@ -16,7 +16,7 @@ use unrealization\PHPClassCollection\HTTPConnection\HTTPResponse;
  * @subpackage HTTPConnection
  * @link http://php-classes.sourceforge.net/ PHP Class Collection
  * @author Dennis Wronka <reptiler@users.sourceforge.net>
- * @version 3.99.6
+ * @version 3.99.7
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL 2.1
  * @todo Finish the rewrite of decodeResponse()
  */
@@ -184,11 +184,18 @@ class HTTPConnection extends TCPConnection
 			$getParamString = '';
 		}
 
-		$host = $this->httpHost;
-
-		if ((($this->ssl === false) && ($this->httpPort !== 80)) || (($this->ssl === true) && ($this->httpPort !== 443)))
+		if (!mb_ereg_match('^unix:', $this->httpHost))
 		{
-			$host .= ':'.$this->httpPort;
+			$host = $this->httpHost;
+
+			if ((($this->ssl === false) && ($this->httpPort !== 80)) || (($this->ssl === true) && ($this->httpPort !== 443)))
+			{
+				$host .= ':'.$this->httpPort;
+			}
+		}
+		else
+		{
+			$host = 'Socket';
 		}
 
 		if (!is_null($this->proxyHost))
