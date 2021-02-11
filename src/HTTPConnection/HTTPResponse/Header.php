@@ -62,7 +62,7 @@ class Header
 			$contentCharset = '';
 		}
 
-		if (!is_null($matches = MbRegEx::search('Transfer-Encoding: (.+)'.$lineBreak, $header)))
+		if (!is_null($matches = MbRegEx::match('Transfer-Encoding: (.+)'.$lineBreak, $header)))
 		{
 			$transferEncoding = $matches[1];
 		}
